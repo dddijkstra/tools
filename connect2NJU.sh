@@ -1,0 +1,12 @@
+curl -s 'http://10.10.100.180/api/portal/v1/login' \
+  -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+  -H 'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+  -H 'DNT: 1' \
+  -H 'Origin: http://10.10.100.180' \
+  -H 'Referer: http://10.10.100.180/portal/index.html?v=202108251750' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  --data-raw '{"domain":"telecom","username":"18951847394","password":"170827"}' \
+  --insecure
