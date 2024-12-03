@@ -93,11 +93,13 @@ class Config:
         self.web_path  = web_path
         self.time_sleep = time_sleep
 
-with sync_playwright() as playwright:
-    page_config = Config(
-        "result.txt",
-        "Storage",
-        "http://www.tcmip.cn/ETCM2/front/#/browse/target",
-        0
-    )
-    run(playwright, page_config)
+
+if __name__ == "__main__":
+    with sync_playwright() as playwright:
+        page_config = Config(
+            "result.txt",
+            "Storage",
+            "http://www.tcmip.cn/ETCM2/front/#/browse/target",
+            0
+        )
+        run(playwright, page_config)
