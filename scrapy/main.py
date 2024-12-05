@@ -3,7 +3,6 @@ import os
 import tkinter as tk
 from tkinter import simpledialog
 
-from numpy.lib.user_array import container
 from playwright.sync_api import sync_playwright, TimeoutError
 from config import Config
 from containers import Container, NewContainer
@@ -18,9 +17,8 @@ def get_page_number():
         return "1"
     return page_number
 def run(pw, p_c):
+    global page_number
     my_container = Container()
-    if os.path.exists(p_c.result_file_path):
-        os.remove(p_c.result_file_path)
 
     browser = pw.chromium.launch_persistent_context(
         user_data_dir=p_c.user_data_dir, headless=False
@@ -34,6 +32,8 @@ def run(pw, p_c):
     try:
         page.goto(p_c.web_path)
         page_number = get_page_number()
+        if os.path.exists(p_c.result_file_path):
+            os.remove(p_c.result_file_path)
         my_container.current_page_number = int(page_number)
         my_container.max_page = int(page.locator("li.number").last.inner_text())
         page.wait_for_selector("text='简体中文'")
@@ -67,8 +67,14 @@ def run(pw, p_c):
                 new_page = new_page_info.value
                 try:
                     # 等待并尝试点击
-                    new_page.locator('span.el-radio-button__inner', has_text='候选靶标谱').click()  # 设置超时时间为 5 秒
-                    my_new_container.new_max_page =  math.ceil(int(new_page.locator('span.el-pagination__total').nth(0).text_content().split()[-1])/20)
+                    new_page.wait_for_selector('span.el-radio-button__inner')
+                    target_span = new_page.locator('span.el-radio-button__inner').filter(has_text="候选靶标谱")
+                    if target_span.count() > 0:
+                        target_span.click()
+                        my_new_container.new_max_page =  math.ceil(int(new_page.locator('span.el-pagination__total').nth(0).text_content().split()[-1])/20)
+                    else:
+                        print(f"第{my_container.current_page_number}页{aaa.nth(i).inner_text()} 0 '候选靶标谱'")
+                        my_new_container.new_max_page = -1
                 except TimeoutError:
                     print(f"未能定位第{my_container.current_page_number}页元素{aaa.nth(i).inner_text()}的'候选靶标谱'")
                     my_new_container.new_max_page = -1
@@ -88,8 +94,21 @@ def run(pw, p_c):
             my_container.current_page_number += 1
 
     except TimeoutError:
-        print("页面加载超时！")
+        print(f"{my_container.current_page_number}页面加载超时！")
+        old_file_path = p_c.result_file_path
+        new_file_path = p_c.dir_path + "page"+ page_number + "-" + str(my_container.current_page_number)
+        rename_file(old_file_path, new_file_path)
     browser.close()
+def rename_file(old_path, new_path):
+    try:
+        os.rename(old_path, new_path)
+        print(f"File renamed from {old_path} to {new_path}")
+    except FileNotFoundError:
+        print(f"File {old_path} not found.")
+    except PermissionError:
+        print(f"Permission denied while renaming {old_path}.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     with sync_playwright() as playwright:
