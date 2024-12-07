@@ -107,8 +107,6 @@ def run(pw, p_c):
 if __name__ == "__main__":
     with sync_playwright() as playwright:
         page_config = Config(
-            "result.txt",
-            "Storage",
             "http://www.tcmip.cn/ETCM2/front/#/browse/herb",
             0.5
         )
