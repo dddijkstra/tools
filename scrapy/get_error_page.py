@@ -5,11 +5,11 @@ import time
 
 from playwright.sync_api import sync_playwright, TimeoutError
 
-from config import Config
-from containers import NewContainer
-from utils import click_next_new_page
+from utils.config import Config
+from utils.containers import NewContainer
+from utils.utils import click_next_new_page
 
-logging.basicConfig(filename='log/warning.log', level=logging.DEBUG,
+logging.basicConfig(filename='log/error.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 def get_error_page():
     # 读取日志文件
@@ -80,12 +80,13 @@ def run(pw, p_c, medicines):
 # Function to extract plant names from file lines
 
 if __name__ == '__main__':
-    got_medicines = ['三颗针']
+    # single_medicine = ['']
+    error_medicines = get_error_page()
     with sync_playwright() as playwright:
         page_config = Config(
-            "result.txt",
+            "error.txt",
             "Storage",
             "http://www.tcmip.cn/ETCM2/front/#/Detail/herb",
             0.5
         )
-        run(playwright, page_config,got_medicines)
+        run(playwright, page_config,error_medicines)

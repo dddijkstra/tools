@@ -1,26 +1,24 @@
 import logging
+import os
 import time
 from playwright.sync_api import Page
 import tkinter as tk
 from tkinter import simpledialog
 
 def click_next_page(container, time_sleep, page: Page):
-    if container.current_page_number >= container.max_page:
-        print("Reached the maximum number of pages.")
+    if container.max_page == container.current_page:
+        container.current_page_number += 1
         return
 
-    with page.expect_response("**/home/browse/") as response_info:
+    try:
+        page.wait_for_selector('i.el-icon.el-icon-arrow-right',timeout=50000)
         time.sleep(time_sleep)
-        page.click('i.el-icon.el-icon-arrow-right')
-        response = response_info.value
-
-        if response.status == 200:
-            container.p += 1
-            return
-        else:
-            print(f"Request failed with status: {response.status} on page {container.current_page_number + 1}")
-            container.current_page_number += 1
-            click_next_page(container, time_sleep, page)
+        page.locator('i.el-icon.el-icon-arrow-right').nth(0).click()
+        container.n_p += 1
+    except TimeoutError:
+        logging.exception("Timed out waiting for page to load")
+        print(f"Request failed with timeout on page {container.current_page_number + 1}")
+        container.current_page_number += 1
 
 def click_next_new_page(container, time_sleep, page: Page):
     if container.new_max_page == container.new_current_page_number:
@@ -46,3 +44,14 @@ def get_page_number():
         print("用户取消了输入，默认使用第1页")
         return "1"
     return page_number
+
+def rename_file(old_path, new_path):
+    try:
+        os.rename(old_path, new_path)
+        print(f"File renamed from {old_path} to {new_path}")
+    except FileNotFoundError:
+        print(f"File {old_path} not found.")
+    except PermissionError:
+        print(f"Permission denied while renaming {old_path}.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
